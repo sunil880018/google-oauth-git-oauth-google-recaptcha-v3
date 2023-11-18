@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>reCAPTCHA v3 Demo</h1>
+    <input type="text" id="hello" value="Hello World" />
+    <button type="button" id="send_button">Send</button>
+    <hr>
+    <div id="result"></div>
+
+    <script src="https://www.google.com/recaptcha/api.js?render=6LfIdQ4pAAAAABe9N6TXatWsnGGOZ55CRZf88QNv"></script>
+    <script>
+
+        // generate google token
+        grecaptcha.ready(function () {
+            grecaptcha.execute('6LfIdQ4pAAAAABe9N6TXatWsnGGOZ55CRZf88QNv', { action: 'submit' })
+                .then(function (token) {
+                    document.querySelector('#send_button').addEventListener('click', handleClick(token));
+                });
+        });
+        
+        function showResult(text) {
+            document.querySelector('#result').innerHTML = text;
+        }
+
+        function handleClick(token) {
+            return function () {
+                var hello = document.querySelector('#hello').value;
+                var data = {
+                    hello: hello,
+                    token: token
+                };
+
+                // send token to server
+                fetch('/send-recaptcha', {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: 'post',
+                    body: JSON.stringify(data)
+                })
+                    .then(response => response.text())
+                    .then(text => showResult(text))
+                    .catch(error => showResult(error));
+            }
+        }
+
+
+    </script>
+</body>
+
+</html>
